@@ -45,7 +45,7 @@
                         '🐶 Apa saja tips perawatan untuk anjing?',
                         '🐱 Kenapa kucing saya sering muntah?',
                     ] as $suggestion)
-                        <button wire:click="$set('input', '{{ $suggestion }}')"
+                        <button @click="$wire.input = @js($suggestion); $wire.sendMessage()"
                                 class="text-left text-xs md:text-sm px-3 md:px-4 py-2.5 bg-white border border-gray-200 rounded-xl hover:border-teal-400 hover:bg-teal-50 transition-colors text-gray-600 hover:text-teal-700 shadow-sm">
                             {{ $suggestion }}
                         </button>
@@ -117,21 +117,25 @@
          x-data="{
              localInput: '',
              get canSend() { return !$wire.isThinking && this.localInput.trim() !== '' },
+             doSend() {
+                 if (!this.canSend) return;
+                 $wire.input = this.localInput;
+                 $wire.sendMessage();
+             },
              init() {
-                 this.$watch('$wire.input', val => { if (val === '') this.localInput = '' })
+                 this.$watch('$wire.input', val => { this.localInput = val ?? '' })
              }
          }">
-        <form wire:submit="sendMessage" class="flex gap-2 md:gap-3 items-end">
+        <form @submit.prevent="doSend()" class="flex gap-2 md:gap-3 items-end">
             <div class="flex-1 relative">
                 <textarea
-                    wire:model="input"
                     x-model="localInput"
                     placeholder="Tanya seputar hewan peliharaan kamu..."
                     rows="1"
                     class="w-full border border-gray-300 rounded-xl px-3 md:px-4 py-2.5 md:py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent resize-none leading-relaxed"
                     style="min-height: 44px; max-height: 120px;"
                     :disabled="$wire.isThinking"
-                    x-on:keydown.enter.prevent.exact="if(!$event.shiftKey && canSend) $wire.sendMessage()"
+                    x-on:keydown="if($event.key === 'Enter' && !$event.shiftKey) { $event.preventDefault(); doSend() }"
                     x-on:input="$el.style.height = 'auto'; $el.style.height = Math.min($el.scrollHeight, 120) + 'px'"
                 ></textarea>
             </div>
