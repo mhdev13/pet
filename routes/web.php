@@ -26,4 +26,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/pets', App\Livewire\Pets\Index::class)->name('pets.index');
     Route::get('/pets/{pet}/vaccines', App\Livewire\Pets\Vaccines::class)->name('pets.vaccines');
     Route::get('/pets/{pet}/vaccines/pdf', [App\Http\Controllers\PetVaccineController::class, 'downloadPdf'])->name('pets.vaccines.pdf');
+    Route::get('/chatbot', App\Livewire\Chatbot\Index::class)->name('chatbot');
 });

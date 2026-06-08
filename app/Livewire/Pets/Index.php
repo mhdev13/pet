@@ -28,13 +28,16 @@ class Index extends Component
     public string $type = '';
     public string $breed = '';
     public string $age = '';
+    public string $weight = '';
     public string $gender = 'male';
     public bool $is_active = true;
     public string $instagram = '';
     public string $facebook = '';
     public string $tiktok = '';
-    public $photo = null;          // new upload (Livewire temp file)
-    public ?string $existingImage = null; // current saved image path
+    public string $flea_medicine_date = '';
+    public string $deworming_date = '';
+    public $photo = null;
+    public ?string $existingImage = null;
 
     public function updatingSearch(): void { $this->resetPage(); }
     public function updatingFilterStatus(): void { $this->resetPage(); }
@@ -52,7 +55,7 @@ class Index extends Component
 
     public function openCreate(): void
     {
-        $this->reset(['name', 'type', 'breed', 'age', 'instagram', 'facebook', 'tiktok', 'photo', 'selectedId', 'existingImage']);
+        $this->reset(['name', 'type', 'breed', 'age', 'weight', 'instagram', 'facebook', 'tiktok', 'flea_medicine_date', 'deworming_date', 'photo', 'selectedId', 'existingImage']);
         $this->gender    = 'male';
         $this->is_active = true;
         $this->modalMode = 'create';
@@ -68,12 +71,15 @@ class Index extends Component
         $this->type          = $pet->type;
         $this->breed         = $pet->breed ?? '';
         $this->age           = $pet->age !== null ? (string) $pet->age : '';
+        $this->weight        = $pet->weight !== null ? (string) $pet->weight : '';
         $this->gender        = $pet->gender;
         $this->is_active     = $pet->is_active;
         $this->instagram     = $pet->instagram ?? '';
         $this->facebook      = $pet->facebook ?? '';
-        $this->tiktok        = $pet->tiktok ?? '';
-        $this->existingImage = $pet->image;
+        $this->tiktok              = $pet->tiktok ?? '';
+        $this->flea_medicine_date  = $pet->flea_medicine_date?->format('Y-m-d') ?? '';
+        $this->deworming_date      = $pet->deworming_date?->format('Y-m-d') ?? '';
+        $this->existingImage       = $pet->image;
         $this->photo         = null;
         $this->modalMode     = 'edit';
         $this->showModal     = true;
@@ -93,12 +99,15 @@ class Index extends Component
             'type'      => 'required|string',
             'breed'     => 'nullable|string|max:255',
             'age'       => 'nullable|integer|min:0|max:100',
+            'weight'    => 'nullable|numeric|min:0|max:999',
             'gender'    => 'required|in:male,female',
             'is_active' => 'boolean',
             'photo'     => 'nullable|image|max:2048',
-            'instagram' => 'nullable|string|max:255',
-            'facebook'  => 'nullable|string|max:255',
-            'tiktok'    => 'nullable|string|max:255',
+            'instagram'          => 'nullable|string|max:255',
+            'facebook'           => 'nullable|string|max:255',
+            'tiktok'             => 'nullable|string|max:255',
+            'flea_medicine_date' => 'nullable|date',
+            'deworming_date'     => 'nullable|date',
         ]);
 
         $imagePath = $this->existingImage;
@@ -122,11 +131,14 @@ class Index extends Component
             'type'      => $this->type,
             'breed'     => $this->breed ?: null,
             'age'       => $this->age !== '' ? (int) $this->age : null,
+            'weight'    => $this->weight !== '' ? (float) $this->weight : null,
             'gender'    => $this->gender,
             'is_active' => $this->is_active,
-            'instagram' => $this->instagram ?: null,
-            'facebook'  => $this->facebook ?: null,
-            'tiktok'    => $this->tiktok ?: null,
+            'instagram'          => $this->instagram ?: null,
+            'facebook'           => $this->facebook ?: null,
+            'tiktok'             => $this->tiktok ?: null,
+            'flea_medicine_date' => $this->flea_medicine_date ?: null,
+            'deworming_date'     => $this->deworming_date ?: null,
         ];
 
         if ($this->modalMode === 'create') {

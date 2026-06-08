@@ -93,6 +93,16 @@
                             @endif
                         </button>
                     </th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <button wire:click="sortBy('weight')" class="flex items-center gap-1 hover:text-gray-700">
+                            Berat
+                            @if($sortField === 'weight')
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $sortDirection === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7' }}"/>
+                                </svg>
+                            @endif
+                        </button>
+                    </th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kelamin</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sosmed</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -130,6 +140,7 @@
                         </td>
                         <td class="px-4 py-3 text-sm text-gray-600">{{ $pet->breed ?? '-' }}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">{{ $pet->age !== null ? $pet->age . ' thn' : '-' }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">{{ $pet->weight !== null ? $pet->weight . ' kg' : '-' }}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">
                             {{ $pet->gender === 'male' ? 'Jantan' : 'Betina' }}
                         </td>
@@ -209,7 +220,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="9" class="px-6 py-12 text-center text-gray-400">
+                        <td colspan="10" class="px-6 py-12 text-center text-gray-400">
                             <svg class="mx-auto w-12 h-12 mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
@@ -344,7 +355,7 @@
                         </div>
                     </div>
 
-                    {{-- Umur + Kelamin --}}
+                    {{-- Umur + Berat + Kelamin --}}
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Umur <span class="text-gray-400 font-normal">(tahun, opsional)</span></label>
@@ -354,17 +365,29 @@
                             @error('age')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Kelamin</label>
-                            <div class="flex gap-4 mt-2">
-                                <label class="flex items-center gap-2 cursor-pointer">
-                                    <input type="radio" wire:model="gender" value="male" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"/>
-                                    <span class="text-sm text-gray-700">Jantan</span>
-                                </label>
-                                <label class="flex items-center gap-2 cursor-pointer">
-                                    <input type="radio" wire:model="gender" value="female" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"/>
-                                    <span class="text-sm text-gray-700">Betina</span>
-                                </label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Berat Badan <span class="text-gray-400 font-normal">(kg, opsional)</span></label>
+                            <div class="relative">
+                                <input type="number" wire:model="weight" min="0" max="999" step="0.01"
+                                       class="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 @error('weight') border-red-400 @enderror"
+                                       placeholder="0.00"/>
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">kg</span>
                             </div>
+                            @error('weight')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+                        </div>
+                    </div>
+
+                    {{-- Kelamin --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Kelamin</label>
+                        <div class="flex gap-4 mt-2">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" wire:model="gender" value="male" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"/>
+                                <span class="text-sm text-gray-700">Jantan</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" wire:model="gender" value="female" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"/>
+                                <span class="text-sm text-gray-700">Betina</span>
+                            </label>
                         </div>
                     </div>
 

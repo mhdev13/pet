@@ -16,18 +16,24 @@ class Pet extends Model
         'type',
         'breed',
         'age',
+        'weight',
         'gender',
         'is_active',
         'instagram',
         'facebook',
         'tiktok',
+        'flea_medicine_date',
+        'deworming_date',
     ];
 
     protected function casts(): array
     {
         return [
-            'is_active' => 'boolean',
-            'age'       => 'integer',
+            'is_active'          => 'boolean',
+            'age'                => 'integer',
+            'weight'             => 'float',
+            'flea_medicine_date' => 'date',
+            'deworming_date'     => 'date',
         ];
     }
 
