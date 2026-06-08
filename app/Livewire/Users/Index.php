@@ -26,6 +26,7 @@ class Index extends Component
     public string $password = '';
     public string $password_confirmation = '';
     public bool $is_active = true;
+    public string $role = 'pet_owner';
 
     public function updatingSearch(): void { $this->resetPage(); }
     public function updatingFilterStatus(): void { $this->resetPage(); }
@@ -44,6 +45,7 @@ class Index extends Component
     {
         $this->reset(['name', 'email', 'password', 'password_confirmation', 'selectedId']);
         $this->is_active = true;
+        $this->role = 'pet_owner';
         $this->modalMode = 'create';
         $this->showModal = true;
         $this->resetValidation();
@@ -56,6 +58,7 @@ class Index extends Component
         $this->name = $user->name;
         $this->email = $user->email;
         $this->is_active = $user->is_active;
+        $this->role = $user->role ?? 'pet_owner';
         $this->password = '';
         $this->password_confirmation = '';
         $this->modalMode = 'edit';
@@ -70,6 +73,7 @@ class Index extends Component
                 'name'     => 'required|string|max:255',
                 'email'    => 'required|email|unique:users,email',
                 'password' => 'required|string|min:8|confirmed',
+                'role'     => 'required|in:admin,pet_owner',
             ]);
 
             User::create([
@@ -77,6 +81,7 @@ class Index extends Component
                 'email'     => $this->email,
                 'password'  => bcrypt($this->password),
                 'is_active' => $this->is_active,
+                'role'      => $this->role,
             ]);
 
             session()->flash('success', 'User berhasil ditambahkan.');
@@ -85,12 +90,14 @@ class Index extends Component
                 'name'     => 'required|string|max:255',
                 'email'    => ['required', 'email', Rule::unique('users', 'email')->ignore($this->selectedId)],
                 'password' => 'nullable|string|min:8|confirmed',
+                'role'     => 'required|in:admin,pet_owner',
             ]);
 
             $data = [
                 'name'      => $this->name,
                 'email'     => $this->email,
                 'is_active' => $this->is_active,
+                'role'      => $this->role,
             ];
 
             if (!empty($this->password)) {

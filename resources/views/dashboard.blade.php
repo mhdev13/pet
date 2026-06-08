@@ -1,11 +1,16 @@
 <x-layouts.app title="Dashboard">
     @php
-        $totalUsers    = \App\Models\User::count();
-        $activeUsers   = \App\Models\User::where('is_active', true)->count();
-        $totalPets     = \App\Models\Pet::count();
-        $activePets    = \App\Models\Pet::where('is_active', true)->count();
-        $petsByType    = \App\Models\Pet::selectRaw('type, count(*) as total')
-                            ->groupBy('type')->orderByDesc('total')->get();
+        $authUser   = auth()->user();
+        $isAdmin    = $authUser->isAdmin();
+
+        $totalUsers  = $isAdmin ? \App\Models\User::count() : 0;
+        $activeUsers = $isAdmin ? \App\Models\User::where('is_active', true)->count() : 0;
+
+        $petQuery   = \App\Models\Pet::query()->when(!$isAdmin, fn($q) => $q->where('user_id', $authUser->id));
+        $totalPets  = (clone $petQuery)->count();
+        $activePets = (clone $petQuery)->where('is_active', true)->count();
+        $petsByType = (clone $petQuery)->selectRaw('type, count(*) as total')
+                        ->groupBy('type')->orderByDesc('total')->get();
     @endphp
 
     {{-- Welcome banner --}}
@@ -16,7 +21,8 @@
     </div>
 
     {{-- Stat cards --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 {{ auth()->user()->isAdmin() ? 'lg:grid-cols-4' : '' }} gap-5 mb-6">
+        @if(auth()->user()->isAdmin())
         {{-- Total Users --}}
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
             <div class="flex items-center justify-between mb-3">
@@ -51,6 +57,7 @@
                 dari {{ $totalUsers }} total users
             </p>
         </div>
+        @endif
 
         {{-- Total Pets --}}
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
@@ -116,6 +123,7 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
             <h3 class="text-sm font-semibold text-gray-700 mb-4">Menu Cepat</h3>
             <div class="grid grid-cols-2 gap-3">
+                @if(auth()->user()->isAdmin())
                 <a href="{{ route('users.index') }}"
                    class="flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:bg-blue-50 hover:border-blue-200 transition-colors group">
                     <div class="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
@@ -129,6 +137,7 @@
                         <p class="text-xs text-gray-400">Kelola user</p>
                     </div>
                 </a>
+                @endif
 
                 <a href="{{ route('pets.index') }}"
                    class="flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:bg-pink-50 hover:border-pink-200 transition-colors group">

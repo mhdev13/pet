@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Pet extends Model
@@ -11,6 +12,7 @@ class Pet extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'name',
         'image',
         'type',
@@ -40,6 +42,11 @@ class Pet extends Model
     public static array $types = [
         'Anjing', 'Kucing', 'Burung', 'Kelinci', 'Hamster', 'Ikan', 'Reptil', 'Lainnya',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function vaccines(): HasMany
     {

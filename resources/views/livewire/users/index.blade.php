@@ -77,6 +77,7 @@
 
     {{-- Table --}}
     <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
@@ -101,6 +102,7 @@
                             @endif
                         </button>
                     </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         <button wire:click="sortBy('created_at')" class="flex items-center gap-1 hover:text-gray-700">
@@ -129,6 +131,17 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $user->email }}</td>
+                        <td class="px-6 py-4">
+                            @if($user->role === 'admin')
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                                    Admin
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                                    Pet Owner
+                                </span>
+                            @endif
+                        </td>
                         <td class="px-6 py-4">
                             <button wire:click="toggleStatus({{ $user->id }})"
                                     @if($user->id === auth()->id()) disabled title="Tidak bisa mengubah status akun sendiri" @endif
@@ -166,7 +179,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-400">
                             <svg class="mx-auto w-12 h-12 mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
@@ -177,6 +190,7 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
 
         @if($users->hasPages())
             <div class="px-6 py-4 border-t border-gray-200">
@@ -238,6 +252,16 @@
                         <input type="password" wire:model="password_confirmation"
                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                placeholder="Ulangi password"/>
+                    </div>
+                    {{-- Role --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                        <select wire:model="role"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 @error('role') border-red-400 @enderror">
+                            <option value="pet_owner">Pet Owner</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                        @error('role')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                     </div>
                     {{-- Status --}}
                     <div>

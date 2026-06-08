@@ -22,7 +22,8 @@ Route::middleware('auth')->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
-    Route::get('/users', App\Livewire\Users\Index::class)->name('users.index');
+    Route::get('/users', App\Livewire\Users\Index::class)->name('users.index')
+        ->middleware(App\Http\Middleware\AdminOnly::class);
     Route::get('/pets', App\Livewire\Pets\Index::class)->name('pets.index');
     Route::get('/pets/{pet}/vaccines', App\Livewire\Pets\Vaccines::class)->name('pets.vaccines');
     Route::get('/pets/{pet}/vaccines/pdf', [App\Http\Controllers\PetVaccineController::class, 'downloadPdf'])->name('pets.vaccines.pdf');

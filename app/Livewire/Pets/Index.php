@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use App\Models\Pet;
+use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 
 class Index extends Component
@@ -38,6 +39,7 @@ class Index extends Component
     public string $deworming_date = '';
     public $photo = null;
     public ?string $existingImage = null;
+    public ?int $user_id = null;
 
     public function updatingSearch(): void { $this->resetPage(); }
     public function updatingFilterStatus(): void { $this->resetPage(); }
@@ -58,6 +60,7 @@ class Index extends Component
         $this->reset(['name', 'type', 'breed', 'age', 'weight', 'instagram', 'facebook', 'tiktok', 'flea_medicine_date', 'deworming_date', 'photo', 'selectedId', 'existingImage']);
         $this->gender    = 'male';
         $this->is_active = true;
+        $this->user_id   = auth()->id();
         $this->modalMode = 'create';
         $this->showModal = true;
         $this->resetValidation();
@@ -80,6 +83,7 @@ class Index extends Component
         $this->flea_medicine_date  = $pet->flea_medicine_date?->format('Y-m-d') ?? '';
         $this->deworming_date      = $pet->deworming_date?->format('Y-m-d') ?? '';
         $this->existingImage       = $pet->image;
+        $this->user_id       = $pet->user_id;
         $this->photo         = null;
         $this->modalMode     = 'edit';
         $this->showModal     = true;
@@ -108,6 +112,7 @@ class Index extends Component
             'tiktok'             => 'nullable|string|max:255',
             'flea_medicine_date' => 'nullable|date',
             'deworming_date'     => 'nullable|date',
+            'user_id'            => 'nullable|exists:users,id',
         ]);
 
         $imagePath = $this->existingImage;
@@ -142,9 +147,13 @@ class Index extends Component
         ];
 
         if ($this->modalMode === 'create') {
+            $data['user_id'] = auth()->user()->isAdmin() ? $this->user_id : auth()->id();
             Pet::create($data);
             session()->flash('success', 'Pet berhasil ditambahkan.');
         } else {
+            if (auth()->user()->isAdmin()) {
+                $data['user_id'] = $this->user_id;
+            }
             Pet::findOrFail($this->selectedId)->update($data);
             session()->flash('success', 'Pet berhasil diupdate.');
         }
@@ -178,7 +187,14 @@ class Index extends Component
 
     public function render()
     {
-        $pets = Pet::query()
+        $user      = auth()->user();
+        $isAdmin   = $user->isAdmin();
+
+        $baseQuery = Pet::query()
+            ->when(!$isAdmin, fn($q) => $q->where('user_id', $user->id));
+
+        $pets = (clone $baseQuery)
+            ->when($isAdmin, fn($q) => $q->with('user'))
             ->when($this->search, fn($q) => $q->where(function ($q) {
                 $q->where('name', 'like', '%' . $this->search . '%')
                   ->orWhere('breed', 'like', '%' . $this->search . '%')
@@ -190,11 +206,12 @@ class Index extends Component
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate(10);
 
-        $totalActive   = Pet::where('is_active', true)->count();
-        $totalInactive = Pet::where('is_active', false)->count();
+        $totalActive   = (clone $baseQuery)->where('is_active', true)->count();
+        $totalInactive = (clone $baseQuery)->where('is_active', false)->count();
         $types         = Pet::$types;
+        $users         = $isAdmin ? User::orderBy('name')->get(['id', 'name']) : collect();
 
-        return view('livewire.pets.index', compact('pets', 'totalActive', 'totalInactive', 'types'))
+        return view('livewire.pets.index', compact('pets', 'totalActive', 'totalInactive', 'types', 'users'))
             ->layout('layouts.app', ['title' => 'Pets']);
     }
 }

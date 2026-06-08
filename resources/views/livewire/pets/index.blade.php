@@ -67,6 +67,7 @@
 
     {{-- Table --}}
     <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
@@ -107,6 +108,9 @@
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Obat Kutu</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Obat Cacing</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sosmed</th>
+                    @if(auth()->user()->isAdmin())
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pet Owner</th>
+                    @endif
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                 </tr>
@@ -204,6 +208,21 @@
                             </div>
                         </td>
 
+                        @if(auth()->user()->isAdmin())
+                        <td class="px-4 py-3">
+                            @if($pet->user)
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600 flex-shrink-0">
+                                        {{ strtoupper(substr($pet->user->name, 0, 1)) }}
+                                    </div>
+                                    <span class="text-sm text-gray-700">{{ $pet->user->name }}</span>
+                                </div>
+                            @else
+                                <span class="text-xs text-gray-300">-</span>
+                            @endif
+                        </td>
+                        @endif
+
                         <td class="px-4 py-3">
                             <button wire:click="toggleStatus({{ $pet->id }})"
                                     class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer
@@ -246,7 +265,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="12" class="px-6 py-12 text-center text-gray-400">
+                        <td colspan="{{ auth()->user()->isAdmin() ? 13 : 12 }}" class="px-6 py-12 text-center text-gray-400">
                             <svg class="mx-auto w-12 h-12 mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
@@ -257,6 +276,7 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
 
         @if($pets->hasPages())
             <div class="px-6 py-4 border-t border-gray-200">
@@ -359,6 +379,21 @@
                                placeholder="Nama pet"/>
                         @error('name')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                     </div>
+
+                    {{-- Pet Owner (admin only) --}}
+                    @if(auth()->user()->isAdmin())
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Pet Owner</label>
+                        <select wire:model="user_id"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 @error('user_id') border-red-400 @enderror">
+                            <option value="">Tanpa owner</option>
+                            @foreach($users as $u)
+                                <option value="{{ $u->id }}">{{ $u->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('user_id')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+                    </div>
+                    @endif
 
                     {{-- Jenis + Ras --}}
                     <div class="grid grid-cols-2 gap-3">

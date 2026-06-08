@@ -25,6 +25,7 @@ class RegisterService
                     'name' => $request->name,
                     'email' => $request->email,
                     'password' => Hash::make($request->password),
+                    'role' => 'pet_owner',
                 ]);
             });
         } catch (Exception $e) {
