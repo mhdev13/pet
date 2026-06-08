@@ -104,6 +104,8 @@
                         </button>
                     </th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kelamin</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Obat Kutu</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Obat Cacing</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sosmed</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
@@ -143,6 +145,30 @@
                         <td class="px-4 py-3 text-sm text-gray-600">{{ $pet->weight !== null ? $pet->weight . ' kg' : '-' }}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">
                             {{ $pet->gender === 'male' ? 'Jantan' : 'Betina' }}
+                        </td>
+
+                        {{-- Obat Kutu --}}
+                        <td class="px-4 py-3 text-sm">
+                            @if($pet->flea_medicine_date)
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium
+                                    {{ $pet->flea_medicine_date->diffInDays(now()) > 90 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700' }}">
+                                    🐜 {{ $pet->flea_medicine_date->format('d M Y') }}
+                                </span>
+                            @else
+                                <span class="text-gray-300 text-xs">-</span>
+                            @endif
+                        </td>
+
+                        {{-- Obat Cacing --}}
+                        <td class="px-4 py-3 text-sm">
+                            @if($pet->deworming_date)
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium
+                                    {{ $pet->deworming_date->diffInDays(now()) > 90 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700' }}">
+                                    🪱 {{ $pet->deworming_date->format('d M Y') }}
+                                </span>
+                            @else
+                                <span class="text-gray-300 text-xs">-</span>
+                            @endif
                         </td>
 
                         {{-- Social media icons --}}
@@ -220,7 +246,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="10" class="px-6 py-12 text-center text-gray-400">
+                        <td colspan="12" class="px-6 py-12 text-center text-gray-400">
                             <svg class="mx-auto w-12 h-12 mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
@@ -388,6 +414,27 @@
                                 <input type="radio" wire:model="gender" value="female" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"/>
                                 <span class="text-sm text-gray-700">Betina</span>
                             </label>
+                        </div>
+                    </div>
+
+                    {{-- Kesehatan Rutin --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Kesehatan Rutin <span class="text-gray-400 font-normal">(opsional)</span>
+                        </label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">🐜 Tgl. Obat Kutu Terakhir</label>
+                                <input type="date" wire:model="flea_medicine_date"
+                                       class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 @error('flea_medicine_date') border-red-400 @enderror"/>
+                                @error('flea_medicine_date')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">🪱 Tgl. Obat Cacing Terakhir</label>
+                                <input type="date" wire:model="deworming_date"
+                                       class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 @error('deworming_date') border-red-400 @enderror"/>
+                                @error('deworming_date')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+                            </div>
                         </div>
                     </div>
 
